@@ -38,15 +38,17 @@ ANTHROPIC_MODEL=claude-sonnet-4-20250514
 ### 运行（推荐使用 run.py）
 
 ```bash
-# 直接运行（最简单的方式）
+# 默认继续上次会话（主流用法）
 python run.py "你的问题"
+
+# 单次运行，不保存会话
+python run.py "你的问题" --once
 
 # 交互模式
 python run.py --tui
 
-# 继续上次会话（主流用法）
+# 显式继续上次会话
 python run.py --continue
-python run.py "继续刚才的任务" --continue
 ```
 
 或者使用标准 Python 模块方式：
