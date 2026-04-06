@@ -8,6 +8,16 @@ Usage:
     python run.py --continue              # 继续上次会话
 """
 import sys
+import os
+from pathlib import Path
+
+# Add project root to path for local development
+project_root = Path(__file__).parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+# Also set current working directory to project root
+os.chdir(project_root)
 
 
 def main():
