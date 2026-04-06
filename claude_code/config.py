@@ -27,13 +27,13 @@ class ClaudeConfig(BaseSettings):
 
     # Session
     session_dir: Path = Field(
-        default=Path.home() / ".claude" / "sessions",
+        default=Path.home() / ".claude_py" / "sessions",
         alias="CLAUDE_SESSION_DIR"
     )
 
     # Plugins
     plugins_dir: Path = Field(
-        default=Path.home() / ".claude" / "plugins",
+        default=Path.home() / ".claude_py" / "plugins",
         alias="CLAUDE_PLUGINS_DIR"
     )
 
