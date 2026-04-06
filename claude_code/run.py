@@ -2,22 +2,12 @@
 """Simple runner for Claude Code
 
 Usage:
-    python run.py "your prompt"           # 默认继续上次会话
-    python run.py "your prompt" --once    # 单次运行，不保存会话
-    python run.py --tui                   # 交互模式
-    python run.py --continue              # 继续上次会话
+    python -m claude_code.run "your prompt"           # 默认继续上次会话
+    python -m claude_code.run "your prompt" --once    # 单次运行，不保存会话
+    python -m claude_code.run --tui                   # 交互模式
+    python -m claude_code.run --continue              # 继续上次会话
 """
 import sys
-import os
-from pathlib import Path
-
-# Add project root to path for local development
-project_root = Path(__file__).parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-# Also set current working directory to project root
-os.chdir(project_root)
 
 
 def main():
