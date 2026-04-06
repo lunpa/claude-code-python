@@ -18,7 +18,7 @@ Python version of Claude Code CLI tool, built on Anthropic API. This project is 
 ### Install Dependencies
 
 ```bash
-pip install anthropic pydantic pydantic-settings rich click textual
+pip install -r requirements.txt
 ```
 
 ### Configure Environment
