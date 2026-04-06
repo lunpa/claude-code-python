@@ -35,66 +35,75 @@ ANTHROPIC_API_KEY=your_api_key_here
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
 ```
 
-### Run (Recommended: use run.py)
+### Run
 
 ```bash
-# Direct run (simplest way)
-python run.py "your question"
+# Using module (default: continue previous session)
+python -m claude_code.run "your question"
 
 # Interactive mode
-python run.py --tui
+python -m claude_code.run --tui
 
-# Continue previous session (main usage)
-python run.py --continue
-python run.py "continue previous task" --continue
+# Single run without saving session
+python -m claude_code.run "your question" --once
+
+# Explicitly continue previous session
+python -m claude_code.run --continue
 ```
 
-Or use the standard Python module approach:
+Or install as editable:
 
 ```bash
-# Command line mode
-python -m claude_code "your question"
+# Install as editable
+pip install -e .
 
-# Interactive mode
-python -m claude_code
-
-# Continue previous session
-python -m claude_code --continue
+# Then run directly
+claude-code "your question"
+claude-code --tui
+claude-code --continue
 ```
 
 ## Usage Examples
 
 ```bash
 # Ask a question
-python run.py "write a quick sort for me"
+python -m claude_code.run "write a quick sort for me"
 
 # Interactive conversation
-python run.py --tui
+python -m claude_code.run --tui
 
 # Continue previous session
-python run.py --continue
+python -m claude_code.run --continue
 
 # Specify model
-python run.py "use haiku model" --model claude-haiku-2025-01-24
+python -m claude_code.run "use haiku model" --model claude-haiku-2025-01-24
 
 # Debug mode
-python run.py "your question" --debug
+python -m claude_code.run "your question" --debug
 ```
 
 ## Project Structure
 
 ```
-claude_code/
-├── api/          # API client
-├── cli.py        # CLI entry
-├── commands/     # Command implementations
-├── config.py     # Configuration management
-├── mcp/          # MCP protocol support
-├── query.py      # Query engine
-├── run.py        # Convenience launcher script
-├── session/      # Session management
-├── tools/        # Tool collection
-└── tui/          # Terminal UI
+claude_code_python/           # Project root
+├── claude_code/              # Main package
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── cli.py                # CLI entry
+│   ├── config.py             # Configuration
+│   ├── query.py              # Query engine
+│   ├── run.py                # Launcher script
+│   ├── api/                  # API client
+│   ├── commands/             # Commands
+│   ├── mcp/                  # MCP support
+│   ├── session/              # Session management
+│   ├── tools/                # Tools
+│   ├── tui/                  # Terminal UI
+│   └── utils/                # Utilities
+├── README.md
+├── README_en.md
+├── requirements.txt
+└── pyproject.toml
 ```
 
 ## Configuration
@@ -105,6 +114,15 @@ claude_code/
 | ANTHROPIC_BASE_URL | API endpoint | https://api.anthropic.com |
 | ANTHROPIC_MODEL | Default model | claude-sonnet-4-20250514 |
 | API_TIMEOUT_MS | Request timeout (ms) | 600000 |
+| CLAUDE_SESSION_DIR | Session directory | ~/.claude_py/sessions |
+| CLAUDE_PLUGINS_DIR | Plugins directory | ~/.claude_py/plugins |
+
+## Data Storage
+
+- Session directory: `~/.claude_py/sessions`
+- Plugins directory: `~/.claude_py/plugins`
+
+Separated from official Claude's `.claude` directory to avoid conflicts.
 
 ## License
 

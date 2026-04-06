@@ -35,68 +35,75 @@ ANTHROPIC_API_KEY=your_api_key_here
 ANTHROPIC_MODEL=claude-sonnet-4-20250514
 ```
 
-### 运行（推荐使用 run.py）
+### 运行
 
 ```bash
-# 默认继续上次会话（主流用法）
-python run.py "你的问题"
+# 使用模块方式运行（默认继续上次会话）
+python -m claude_code.run "你的问题"
+
+# 交互模式
+python -m claude_code.run --tui
 
 # 单次运行，不保存会话
-python run.py "你的问题" --once
-
-# 交互模式
-python run.py --tui
+python -m claude_code.run "你的问题" --once
 
 # 显式继续上次会话
-python run.py --continue
+python -m claude_code.run --continue
 ```
 
-或者使用标准 Python 模块方式：
+或者直接运行：
 
 ```bash
-# 命令行模式
-python -m claude_code "你的问题"
+# 安装为可编辑模式
+pip install -e .
 
-# 交互模式
-python -m claude_code
-
-# 继续上次会话
-python -m claude_code --continue
+# 然后可以直接运行
+claude-code "你的问题"
+claude-code --tui
+claude-code --continue
 ```
 
 ## 使用示例
 
 ```bash
 # 问一个问题
-python run.py "帮我写一个快速排序"
+python -m claude_code.run "帮我写一个快速排序"
 
 # 交互式对话
-python run.py --tui
+python -m claude_code.run --tui
 
 # 继续之前的会话
-python run.py --continue
+python -m claude_code.run --continue
 
 # 指定模型
-python run.py "用 haiku 模型" --model claude-haiku-2025-01-24
+python -m claude_code.run "用 haiku 模型" --model claude-haiku-2025-01-24
 
 # 调试模式
-python run.py "你的问题" --debug
+python -m claude_code.run "你的问题" --debug
 ```
 
 ## 项目结构
 
 ```
-claude_code/
-├── api/          # API 客户端
-├── cli.py        # CLI 入口
-├── commands/     # 命令实现
-├── config.py     # 配置管理
-├── mcp/          # MCP 协议支持
-├── query.py      # 查询引擎
-├── run.py        # 便捷启动脚本
-├── session/      # 会话管理
-├── tools/        # 工具集
-└── tui/          # 终端 UI
+claude_code_python/           # 项目根目录
+├── claude_code/              # 主代码包
+│   ├── __init__.py
+│   ├── __main__.py
+│   ├── cli.py                # CLI 入口
+│   ├── config.py             # 配置管理
+│   ├── query.py              # 查询引擎
+│   ├── run.py                # 启动脚本
+│   ├── api/                  # API 客户端
+│   ├── commands/             # 命令实现
+│   ├── mcp/                  # MCP 协议支持
+│   ├── session/              # 会话管理
+│   ├── tools/                # 工具集
+│   ├── tui/                  # 终端 UI
+│   └── utils/                # 工具函数
+├── README.md
+├── README_en.md
+├── requirements.txt
+└── pyproject.toml
 ```
 
 ## 配置说明
@@ -107,6 +114,15 @@ claude_code/
 | ANTHROPIC_BASE_URL | API 地址 | https://api.anthropic.com |
 | ANTHROPIC_MODEL | 默认模型 | claude-sonnet-4-20250514 |
 | API_TIMEOUT_MS | 请求超时(毫秒) | 600000 |
+| CLAUDE_SESSION_DIR | Session 目录 | ~/.claude_py/sessions |
+| CLAUDE_PLUGINS_DIR | Plugins 目录 | ~/.claude_py/plugins |
+
+## 数据存储
+
+- Session 目录：`~/.claude_py/sessions`
+- Plugins 目录：`~/.claude_py/plugins`
+
+与官方 Claude 的 `.claude` 目录区分开，避免冲突。
 
 ## 许可证
 
