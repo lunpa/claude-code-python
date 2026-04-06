@@ -17,6 +17,7 @@ from claude_code.api.client import ClaudeClient
 from claude_code.api.types import Message
 from claude_code.tools.registry import get_all_tools
 from claude_code.query import run_query, QueryEngine
+from claude_code.session.manager import SessionManager
 
 console = Console()
 logger = logging.getLogger(__name__)
@@ -84,6 +85,9 @@ async def async_main(
     continue_session: bool = False,
 ):
     """Async main function"""
+    # Initialize session manager
+    session_manager = SessionManager(config.session_dir)
+
     # Initialize client
     client = ClaudeClient(
         api_key=api_key,
@@ -94,37 +98,71 @@ async def async_main(
     # Get tools
     tools = get_all_tools()
 
-    # Build messages
-    messages = [Message(role="user", content=prompt)]
-
-    # Create engine and run query
+    # Create engine
     engine = QueryEngine(client=client, model=model or config.anthropic_model)
     engine.tools = tools
 
-    # Run initial query
-    await run_query(client, messages, tools, model or config.anthropic_model)
-
-    # Sync messages from run_query to engine for continue_session
+    # Handle session continuation
     if continue_session:
-        engine.messages = messages.copy()
+        sessions = session_manager.list_sessions()
+        if sessions:
+            # Load most recent session
+            latest = sessions[0]
+            loaded_messages = session_manager.load_session(latest["session_id"])
+            if loaded_messages:
+                engine.messages = loaded_messages
+                console.print(f"[green]已加载会话: {latest['session_id']}[/green]")
+                console.print(f"[dim]创建时间: {latest.get('created_at', 'unknown')}[/dim]\n")
+        else:
+            console.print("[yellow]没有找到历史会话，将创建新会话[/yellow]")
+            session_manager.create_session()
+    else:
+        # Create new session
+        session_manager.create_session()
 
-    # If continuing session, enter interactive loop
-    if continue_session:
-        while True:
-            try:
-                # Use asyncio to run input in thread
-                user_input = await asyncio.get_event_loop().run_in_executor(
-                    None, lambda: input("\n> ").strip()
-                )
-                if not user_input:
-                    continue
-                if user_input.lower() in ["exit", "quit", "q"]:
-                    console.print("[yellow]Goodbye![/yellow]")
-                    break
-                await engine.chat(user_input)
-            except (KeyboardInterrupt, EOFError):
-                console.print("\n[yellow]Goodbye![/yellow]")
+    # Build initial messages
+    if prompt:
+        messages = [Message(role="user", content=prompt)]
+        engine.messages.extend(messages)
+
+    # Run initial query if prompt provided
+    if prompt:
+        await run_query(client, engine.messages, tools, model or config.anthropic_model)
+        # Save session after initial query
+        session_manager.current_messages = engine.messages
+        session_manager.save_current_session()
+
+    # Enter interactive loop
+    while True:
+        try:
+            # Use asyncio to run input in thread
+            user_input = await asyncio.get_event_loop().run_in_executor(
+                None, lambda: input("\n> ").strip()
+            )
+            if not user_input:
+                continue
+            if user_input.lower() in ["exit", "quit", "q"]:
+                # Save session before exit
+                session_manager.current_messages = engine.messages
+                session_manager.save_current_session()
+                console.print(f"[green]会话已保存到: {config.session_dir}[/green]")
+                console.print("[yellow]Goodbye![/yellow]")
                 break
+
+            # Add user message and chat
+            await engine.chat(user_input)
+
+            # Save session after each interaction
+            session_manager.current_messages = engine.messages
+            session_manager.save_current_session()
+
+        except (KeyboardInterrupt, EOFError):
+            # Save session before exit
+            session_manager.current_messages = engine.messages
+            session_manager.save_current_session()
+            console.print(f"\n[green]会话已保存到: {config.session_dir}[/green]")
+            console.print("[yellow]Goodbye![/yellow]")
+            break
 
 
 def run_headless(
